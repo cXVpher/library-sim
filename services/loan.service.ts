@@ -1,38 +1,28 @@
-// src/services/loan.service.ts
-import apiClient from '@/lib/axios';
+import { api } from '@/lib/api';
 import { ApiResponse, Loan } from '@/types';
 
 export const LoanService = {
-  // --- Akses User ---
   getMyLoans: async () => {
-    const response = await apiClient.get<ApiResponse<Loan[]>>('/loans/my-loans');
-    return response.data;
+    return api.get<ApiResponse<Loan[]>>('/loans/my-loans');
   },
   
   requestLoan: async (bookId: string) => {
-    const response = await apiClient.post<ApiResponse<Loan>>(`/loans/request/${bookId}`);
-    return response.data;
+    return api.post<ApiResponse<Loan>>(`/loans/request/${bookId}`, {});
   },
 
-  // --- Akses Admin ---
   getPendingLoans: async () => {
-    const response = await apiClient.get<ApiResponse<Loan[]>>('/loans/pending');
-    return response.data;
+    return api.get<ApiResponse<Loan[]>>('/loans/pending');
   },
   
   getAllLoansHistory: async () => {
-    const response = await apiClient.get<ApiResponse<Loan[]>>('/loans');
-    return response.data;
+    return api.get<ApiResponse<Loan[]>>('/loans');
   },
 
   approveLoan: async (loanId: string, dueDate: string) => {
-    // Body request butuh {"dueDate": "YYYY-MM-DD"}
-    const response = await apiClient.put<ApiResponse<null>>(`/loans/${loanId}/approve`, { dueDate });
-    return response.data;
+    return api.put<ApiResponse<null>>(`/loans/${loanId}/approve`, { dueDate });
   },
 
   returnLoan: async (loanId: string) => {
-    const response = await apiClient.put<ApiResponse<null>>(`/loans/${loanId}/return`);
-    return response.data;
+    return api.put<ApiResponse<null>>(`/loans/${loanId}/return`, {});
   }
 };

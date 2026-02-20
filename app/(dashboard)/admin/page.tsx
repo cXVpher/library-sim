@@ -1,4 +1,3 @@
-// src/app/(dashboard)/admin/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -41,7 +40,6 @@ export default function AdminDashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   
-  // Form state for add/edit book
   const [formData, setFormData] = useState({
     title: '',
     author: '',

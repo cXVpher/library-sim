@@ -1,4 +1,3 @@
-// src/store/useAuthStore.ts
 import { create } from 'zustand';
 import Cookies from 'js-cookie';
 
@@ -11,7 +10,6 @@ interface AuthState {
   logout: () => void;
 }
 
-// Simple JWT decoder (for getting role and userId from token)
 const decodeJWT = (token: string): { role: string; userId: string } | null => {
   try {
     const base64Url = token.split('.')[1];
@@ -33,7 +31,6 @@ const decodeJWT = (token: string): { role: string; userId: string } | null => {
 };
 
 export const useAuthStore = create<AuthState>((set) => {
-  // Initialize from cookie on store creation
   const initialToken = Cookies.get('token') ?? null;
   let initialRole: string | null = null;
   let initialUserId: string | null = null;

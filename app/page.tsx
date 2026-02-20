@@ -31,7 +31,7 @@ export default function Home() {
             <div className="p-2 bg-white/10 rounded-lg backdrop-blur">
               <Library className="w-8 h-8 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">SpringLib</span>
+            <span className="text-2xl font-bold text-white">LibrarySim</span>
           </div>
           <div className="flex gap-3">
             <Link href="/login">
@@ -75,7 +75,7 @@ export default function Home() {
         </div>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mt-24">
+        <div className="grid md:grid-cols-2 gap-6 mt-24 max-w-4xl mx-auto">
           <Card className="bg-white/5 border-white/10 backdrop-blur">
             <CardContent className="p-6">
               <div className="p-3 bg-blue-500/20 rounded-lg w-fit mb-4">
@@ -95,17 +95,6 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-white mb-2">Easy Borrowing</h3>
               <p className="text-slate-400">
                 Request books with just a click. Track your loans and manage returns effortlessly.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/5 border-white/10 backdrop-blur">
-            <CardContent className="p-6">
-              <div className="p-3 bg-purple-500/20 rounded-lg w-fit mb-4">
-                <Users className="w-6 h-6 text-purple-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">Admin Tools</h3>
-              <p className="text-slate-400">
-                Powerful dashboard for library administrators to manage books and approve loans.
               </p>
             </CardContent>
           </Card>

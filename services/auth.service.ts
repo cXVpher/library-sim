@@ -1,5 +1,4 @@
-// src/services/auth.service.ts
-import apiClient from '@/lib/axios';
+import { api } from '@/lib/api';
 import { ApiResponse } from '@/types';
 
 interface RegisterData {
@@ -22,12 +21,10 @@ interface AuthResponse {
 
 export const AuthService = {
   login: async (data: LoginData): Promise<ApiResponse<AuthResponse>> => {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/login', data);
-    return response.data;
+    return api.post<ApiResponse<AuthResponse>>('/auth/login', data, false);
   },
   
   register: async (data: RegisterData): Promise<ApiResponse<AuthResponse>> => {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/register', data);
-    return response.data;
+    return api.post<ApiResponse<AuthResponse>>('/auth/register', data, false);
   },
 };

@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-// src/app/(dashboard)/layout.tsx
 'use client';
 
 import Link from 'next/link';
@@ -16,12 +14,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Mark as mounted
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    // Redirect if not authenticated (only after mounted to avoid hydration mismatch)
     if (mounted && !isAuthenticated) {
       router.push('/login');
     }
