@@ -30,8 +30,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-800"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
       </div>
     );
   }
@@ -39,25 +39,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isAdmin = role === 'ROLE_ADMIN';
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
       {/* Navbar */}
-      <header className="bg-white border-b shadow-sm sticky top-0 z-10">
+      <header className="bg-white/5 border-b border-white/10 backdrop-blur-md sticky top-0 z-10">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href={isAdmin ? "/admin" : "/books"} className="flex items-center gap-2 font-bold text-xl text-slate-800">
-              <Library className="w-6 h-6" />
+            <Link href={isAdmin ? "/admin" : "/books"} className="flex items-center gap-2 font-bold text-xl text-white">
+              <div className="p-1.5 bg-white/10 rounded-lg">
+                <Library className="w-5 h-5" />
+              </div>
               SpringLib
             </Link>
             
-            <nav className="hidden md:flex gap-1 ml-6">
+            <nav className="flex gap-1 ml-6">
               {!isAdmin && (
                 <>
                   <Link 
                     href="/books" 
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       pathname === '/books' 
-                        ? 'bg-slate-100 text-slate-800' 
-                        : 'text-slate-600 hover:bg-slate-50'
+                        ? 'bg-white/10 text-white' 
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     <BookOpen className="w-4 h-4" />
@@ -67,8 +69,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     href="/loans" 
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       pathname === '/loans' 
-                        ? 'bg-slate-100 text-slate-800' 
-                        : 'text-slate-600 hover:bg-slate-50'
+                        ? 'bg-white/10 text-white' 
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     <Clock className="w-4 h-4" />
@@ -82,8 +84,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     href="/admin" 
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       pathname === '/admin' 
-                        ? 'bg-slate-100 text-slate-800' 
-                        : 'text-slate-600 hover:bg-slate-50'
+                        ? 'bg-white/10 text-white' 
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     <LayoutDashboard className="w-4 h-4" />
@@ -95,13 +97,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full">
               {isAdmin ? (
-                <Users className="w-4 h-4 text-slate-600" />
+                <Users className="w-4 h-4 text-blue-400" />
               ) : (
-                <BookOpen className="w-4 h-4 text-slate-600" />
+                <BookOpen className="w-4 h-4 text-green-400" />
               )}
-              <span className="text-sm font-medium text-slate-700">
+              <span className="text-sm font-medium text-white">
                 {isAdmin ? 'Admin' : 'Member'}
               </span>
             </div>
@@ -109,7 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               variant="ghost" 
               size="sm" 
               onClick={handleLogout} 
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout

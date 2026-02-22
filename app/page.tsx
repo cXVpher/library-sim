@@ -67,7 +67,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/register">
-              <Button size="lg" variant="outline" className="text-white border-white/30 hover:bg-white/10">
+              <Button size="lg" className="bg-white text-slate-900 hover:bg-white/90">
                 Create Account
               </Button>
             </Link>
@@ -105,7 +105,7 @@ export default function Home() {
       <footer className="border-t border-white/10 py-8 mt-20">
         <div className="container mx-auto px-4 text-center">
           <p className="text-slate-500">
-            © 2026 Spring Library. Built with Next.js & Spring Boot.
+            © 2026 Library Simulator. Built with Next.js & Spring Boot.
           </p>
         </div>
       </footer>

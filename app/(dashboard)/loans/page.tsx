@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Loader2, Clock, CheckCircle, RotateCcw, Calendar } from 'lucide-react';
+import { Loader2, Clock, CheckCircle, RotateCcw, Calendar, Library, ArrowRight } from 'lucide-react';
 
 export default function LoansPage() {
   const { role } = useAuthStore();
@@ -76,13 +76,13 @@ export default function LoansPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PENDING': 
-        return <Badge variant="warning">Pending</Badge>;
+        return <Badge variant="warning" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>;
       case 'APPROVED': 
-        return <Badge variant="info">Borrowed</Badge>;
+        return <Badge variant="info" className="bg-blue-500/20 text-blue-400 border-blue-500/30">Borrowed</Badge>;
       case 'RETURNED': 
-        return <Badge variant="success">Returned</Badge>;
+        return <Badge variant="success" className="bg-green-500/20 text-green-400 border-green-500/30">Returned</Badge>;
       case 'REJECTED': 
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30">Rejected</Badge>;
       default: 
         return <Badge>{status}</Badge>;
     }
@@ -101,64 +101,70 @@ export default function LoansPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">My Loans</h1>
-          <p className="text-slate-500">View and manage your book loans</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-green-500/20 rounded-lg">
+            <Library className="w-6 h-6 text-green-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white">My Loans</h1>
+            <p className="text-slate-400">View and manage your book loans</p>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-100 rounded-lg">
-                <Clock className="w-5 h-5 text-slate-600" />
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Clock className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.total}</p>
-                <p className="text-sm text-slate-500">Total</p>
+                <p className="text-2xl font-bold text-white">{stats.total}</p>
+                <p className="text-sm text-slate-400">Total</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Calendar className="w-5 h-5 text-yellow-600" />
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <Calendar className="w-5 h-5 text-yellow-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.pending}</p>
-                <p className="text-sm text-slate-500">Pending</p>
+                <p className="text-2xl font-bold text-white">{stats.pending}</p>
+                <p className="text-sm text-slate-400">Pending</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.borrowed}</p>
-                <p className="text-sm text-slate-500">Borrowed</p>
+                <p className="text-2xl font-bold text-white">{stats.borrowed}</p>
+                <p className="text-sm text-slate-400">Borrowed</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <RotateCcw className="w-5 h-5 text-green-600" />
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <RotateCcw className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.returned}</p>
-                <p className="text-sm text-slate-500">Returned</p>
+                <p className="text-2xl font-bold text-white">{stats.returned}</p>
+                <p className="text-sm text-slate-400">Returned</p>
               </div>
             </div>
           </CardContent>
@@ -166,15 +172,15 @@ export default function LoansPage() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 pb-2">
+      <div className="flex gap-2 border-b border-white/10 pb-2">
         {(['all', 'PENDING', 'APPROVED', 'RETURNED'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeTab === tab 
-                ? 'bg-slate-800 text-white' 
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-blue-600 text-white' 
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
             {tab === 'all' ? 'All' : tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -183,25 +189,25 @@ export default function LoansPage() {
       </div>
 
       {/* Loans Table */}
-      <Card>
-        <CardContent className="p-0">
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardContent className="p-0 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                {isAdmin && <TableHead>User ID</TableHead>}
-                <TableHead>Book ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Requested</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Returned</TableHead>
-                {isAdmin && <TableHead className="text-center">Actions</TableHead>}
+              <TableRow className="border-white/10 hover:bg-transparent">
+                {isAdmin && <TableHead className="text-slate-300">User ID</TableHead>}
+                <TableHead className="text-slate-300">Book ID</TableHead>
+                <TableHead className="text-slate-300">Status</TableHead>
+                <TableHead className="text-slate-300">Requested</TableHead>
+                <TableHead className="text-slate-300">Due Date</TableHead>
+                <TableHead className="text-slate-300">Returned</TableHead>
+                {isAdmin && <TableHead className="text-center text-slate-300">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={isAdmin ? 7 : 6} className="h-24 text-center">
-                    <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-slate-400" />
                   </TableCell>
                 </TableRow>
               ) : filteredLoans.length === 0 ? (
@@ -212,25 +218,25 @@ export default function LoansPage() {
                 </TableRow>
               ) : (
                 filteredLoans.map((loan) => (
-                  <TableRow key={loan.id}>
+                  <TableRow key={loan.id} className="border-white/5 hover:bg-white/5">
                     {isAdmin && (
-                      <TableCell className="font-mono text-xs">
+                      <TableCell className="font-mono text-xs text-slate-400">
                         {loan.userId.split('-')[0]}...
                       </TableCell>
                     )}
-                    <TableCell className="font-mono text-xs">
+                    <TableCell className="font-mono text-xs text-slate-400">
                       {loan.bookId.split('-')[0]}...
                     </TableCell>
                     <TableCell>{getStatusBadge(loan.status)}</TableCell>
-                    <TableCell>{new Date(loan.requestedAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-slate-300">{new Date(loan.requestedAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       {loan.dueDate ? (
-                        <span className={new Date(loan.dueDate) < new Date() ? 'text-red-600' : ''}>
+                        <span className={new Date(loan.dueDate) < new Date() ? 'text-red-400' : 'text-slate-300'}>
                           {new Date(loan.dueDate).toLocaleDateString()}
                         </span>
                       ) : '-'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-slate-300">
                       {loan.returnDate 
                         ? new Date(loan.returnDate).toLocaleDateString()
                         : '-'
@@ -258,7 +264,7 @@ export default function LoansPage() {
                           </Button>
                         )}
                         {loan.status === 'RETURNED' && (
-                          <span className="text-sm text-slate-400 italic">Completed</span>
+                          <span className="text-sm text-slate-500 italic">Completed</span>
                         )}
                       </TableCell>
                     )}

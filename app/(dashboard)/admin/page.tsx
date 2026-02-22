@@ -28,7 +28,9 @@ import {
   Users,
   Clock,
   CheckCircle,
-  RotateCcw
+  RotateCcw,
+  LayoutDashboard,
+  X
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -63,8 +65,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchLoans = async () => {
-    setIsLoading(true);
+  const fetchLoans = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
     try {
       const response = await LoanService.getAllLoansHistory();
       if (response.success) {
@@ -73,7 +75,7 @@ export default function AdminDashboard() {
     } catch (error) {
       toast.error('Failed to fetch loans');
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   };
 
@@ -81,9 +83,26 @@ export default function AdminDashboard() {
     if (activeTab === 'books') {
       fetchBooks();
     } else {
-      fetchLoans();
+      fetchLoans(true);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'loans') {
+      const interval = setInterval(() => {
+        fetchLoans(false);
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchLoans();
+  }, []);
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,36 +201,97 @@ export default function AdminDashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PENDING': 
-        return <Badge variant="warning">Pending</Badge>;
+        return <Badge variant="warning" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>;
       case 'APPROVED': 
-        return <Badge variant="info">Borrowed</Badge>;
+        return <Badge variant="info" className="bg-blue-500/20 text-blue-400 border-blue-500/30">Borrowed</Badge>;
       case 'RETURNED': 
-        return <Badge variant="success">Returned</Badge>;
+        return <Badge variant="success" className="bg-green-500/20 text-green-400 border-green-500/30">Returned</Badge>;
       case 'REJECTED': 
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30">Rejected</Badge>;
       default: 
         return <Badge>{status}</Badge>;
     }
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
-          <p className="text-slate-500">Manage your library</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-purple-500/20 rounded-lg">
+            <LayoutDashboard className="w-6 h-6 text-purple-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+            <p className="text-slate-400">Manage your library</p>
+          </div>
         </div>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <BookOpen className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{books.length}</p>
+                <p className="text-sm text-slate-400">Total Books</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <BookOpen className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{books.filter(b => b.availableCopies > 0).length}</p>
+                <p className="text-sm text-slate-400">Available</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <Clock className="w-5 h-5 text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{loans.filter(l => l.status === 'PENDING').length}</p>
+                <p className="text-sm text-slate-400">Pending Requests</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Users className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{loans.filter(l => l.status === 'APPROVED').length}</p>
+                <p className="text-sm text-slate-400">Currently Borrowed</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 pb-2">
+      <div className="flex gap-2 border-b border-white/10 pb-2">
         <button
           onClick={() => setActiveTab('books')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             activeTab === 'books' 
-              ? 'bg-slate-800 text-white' 
-              : 'text-slate-600 hover:bg-slate-100'
+              ? 'bg-blue-600 text-white' 
+              : 'text-slate-400 hover:bg-white/5 hover:text-white'
           }`}
         >
           <BookOpen className="w-4 h-4" />
@@ -221,8 +301,8 @@ export default function AdminDashboard() {
           onClick={() => setActiveTab('loans')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             activeTab === 'loans' 
-              ? 'bg-slate-800 text-white' 
-              : 'text-slate-600 hover:bg-slate-100'
+              ? 'bg-blue-600 text-white' 
+              : 'text-slate-400 hover:bg-white/5 hover:text-white'
           }`}
         >
           <Clock className="w-4 h-4" />
@@ -239,37 +319,37 @@ export default function AdminDashboard() {
                 placeholder="Search books..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10"
+                className="h-10 bg-white/5 border-white/10 text-white placeholder:text-slate-500"
               />
-              <Button type="submit" variant="secondary">
+              <Button type="submit" variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-white/10">
                 <Search className="w-4 h-4" />
               </Button>
             </form>
-            <Button onClick={() => { setEditingBook(null); setShowAddModal(true); }}>
+            <Button onClick={() => { setEditingBook(null); setShowAddModal(true); }} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Add Book
             </Button>
           </div>
 
-          <Card>
-            <CardContent className="p-0">
+          <Card className="bg-white/5 border-white/10 backdrop-blur">
+            <CardContent className="p-0 overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>ISBN</TableHead>
-                    <TableHead>Publisher</TableHead>
-                    <TableHead>Year</TableHead>
-                    <TableHead>Available</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="border-white/10 hover:bg-transparent">
+                    <TableHead className="text-slate-300">Title</TableHead>
+                    <TableHead className="text-slate-300">Author</TableHead>
+                    <TableHead className="text-slate-300">ISBN</TableHead>
+                    <TableHead className="text-slate-300">Publisher</TableHead>
+                    <TableHead className="text-slate-300">Year</TableHead>
+                    <TableHead className="text-slate-300">Available</TableHead>
+                    <TableHead className="text-right text-slate-300">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
                       <TableCell colSpan={7} className="h-24 text-center">
-                        <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-slate-400" />
                       </TableCell>
                     </TableRow>
                   ) : books.length === 0 ? (
@@ -280,14 +360,14 @@ export default function AdminDashboard() {
                     </TableRow>
                   ) : (
                     books.map((book) => (
-                      <TableRow key={book.id}>
-                        <TableCell className="font-medium">{book.title}</TableCell>
-                        <TableCell>{book.author}</TableCell>
-                        <TableCell className="font-mono text-sm">{book.isbn}</TableCell>
-                        <TableCell>{book.publisher}</TableCell>
-                        <TableCell>{book.publicationYear}</TableCell>
+                      <TableRow key={book.id} className="border-white/5 hover:bg-white/5">
+                        <TableCell className="font-medium text-white">{book.title}</TableCell>
+                        <TableCell className="text-slate-300">{book.author}</TableCell>
+                        <TableCell className="font-mono text-sm text-slate-400">{book.isbn}</TableCell>
+                        <TableCell className="text-slate-300">{book.publisher}</TableCell>
+                        <TableCell className="text-slate-300">{book.publicationYear}</TableCell>
                         <TableCell>
-                          <span className={book.availableCopies > 0 ? 'text-green-600' : 'text-red-600'}>
+                          <span className={book.availableCopies > 0 ? 'text-green-400' : 'text-red-400'}>
                             {book.availableCopies} / {book.totalCopies}
                           </span>
                         </TableCell>
@@ -296,6 +376,7 @@ export default function AdminDashboard() {
                             <Button 
                               variant="ghost" 
                               size="sm"
+                              className="text-slate-400 hover:text-white hover:bg-white/10"
                               onClick={() => openEditModal(book)}
                             >
                               <Pencil className="w-4 h-4" />
@@ -303,7 +384,7 @@ export default function AdminDashboard() {
                             <Button 
                               variant="ghost" 
                               size="sm"
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                               onClick={() => handleDeleteBook(book.id)}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -322,25 +403,25 @@ export default function AdminDashboard() {
 
       {/* Loans Tab */}
       {activeTab === 'loans' && (
-        <Card>
-          <CardContent className="p-0">
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <CardContent className="p-0 overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Loan ID</TableHead>
-                  <TableHead>User ID</TableHead>
-                  <TableHead>Book ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Requested</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
+                <TableRow className="border-white/10 hover:bg-transparent">
+                  <TableHead className="text-slate-300">Loan ID</TableHead>
+                  <TableHead className="text-slate-300">User ID</TableHead>
+                  <TableHead className="text-slate-300">Book ID</TableHead>
+                  <TableHead className="text-slate-300">Status</TableHead>
+                  <TableHead className="text-slate-300">Requested</TableHead>
+                  <TableHead className="text-slate-300">Due Date</TableHead>
+                  <TableHead className="text-center text-slate-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center">
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-slate-400" />
                     </TableCell>
                   </TableRow>
                 ) : loans.length === 0 ? (
@@ -351,13 +432,13 @@ export default function AdminDashboard() {
                   </TableRow>
                 ) : (
                   loans.map((loan) => (
-                    <TableRow key={loan.id}>
-                      <TableCell className="font-mono text-xs">{loan.id.split('-')[0]}...</TableCell>
-                      <TableCell className="font-mono text-xs">{loan.userId.split('-')[0]}...</TableCell>
-                      <TableCell className="font-mono text-xs">{loan.bookId.split('-')[0]}...</TableCell>
+                    <TableRow key={loan.id} className="border-white/5 hover:bg-white/5">
+                      <TableCell className="font-mono text-xs text-slate-400">{loan.id.split('-')[0]}...</TableCell>
+                      <TableCell className="font-mono text-xs text-slate-400">{loan.userId.split('-')[0]}...</TableCell>
+                      <TableCell className="font-mono text-xs text-slate-400">{loan.bookId.split('-')[0]}...</TableCell>
                       <TableCell>{getStatusBadge(loan.status)}</TableCell>
-                      <TableCell>{new Date(loan.requestedAt).toLocaleDateString()}</TableCell>
-                      <TableCell>{loan.dueDate ? new Date(loan.dueDate).toLocaleDateString() : '-'}</TableCell>
+                      <TableCell className="text-slate-300">{new Date(loan.requestedAt).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-slate-300">{loan.dueDate ? new Date(loan.dueDate).toLocaleDateString() : '-'}</TableCell>
                       <TableCell className="text-center">
                         {loan.status === 'PENDING' && (
                           <Button 
@@ -380,7 +461,7 @@ export default function AdminDashboard() {
                           </Button>
                         )}
                         {loan.status === 'RETURNED' && (
-                          <span className="text-sm text-slate-400 italic">Completed</span>
+                          <span className="text-sm text-slate-500 italic">Completed</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -394,62 +475,75 @@ export default function AdminDashboard() {
 
       {/* Add/Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-[500px] max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <CardTitle>{editingBook ? 'Edit Book' : 'Add New Book'}</CardTitle>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <Card className="w-[500px] max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-white">{editingBook ? 'Edit Book' : 'Add New Book'}</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-slate-400 hover:text-white"
+                onClick={() => { setShowAddModal(false); setEditingBook(null); }}
+              >
+                <X className="w-5 h-5" />
+              </Button>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmitBook} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="title" className="text-slate-300">Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     required
+                    className="bg-white/5 border-white/10 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="author">Author</Label>
+                  <Label htmlFor="author" className="text-slate-300">Author</Label>
                   <Input
                     id="author"
                     value={formData.author}
                     onChange={(e) => setFormData({...formData, author: e.target.value})}
                     required
+                    className="bg-white/5 border-white/10 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="isbn">ISBN</Label>
+                  <Label htmlFor="isbn" className="text-slate-300">ISBN</Label>
                   <Input
                     id="isbn"
                     value={formData.isbn}
                     onChange={(e) => setFormData({...formData, isbn: e.target.value})}
                     required
+                    className="bg-white/5 border-white/10 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="publisher">Publisher</Label>
+                  <Label htmlFor="publisher" className="text-slate-300">Publisher</Label>
                   <Input
                     id="publisher"
                     value={formData.publisher}
                     onChange={(e) => setFormData({...formData, publisher: e.target.value})}
                     required
+                    className="bg-white/5 border-white/10 text-white"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="publicationYear">Year</Label>
+                    <Label htmlFor="publicationYear" className="text-slate-300">Year</Label>
                     <Input
                       id="publicationYear"
                       type="number"
                       value={formData.publicationYear}
                       onChange={(e) => setFormData({...formData, publicationYear: parseInt(e.target.value)})}
                       required
+                      className="bg-white/5 border-white/10 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="totalCopies">Total Copies</Label>
+                    <Label htmlFor="totalCopies" className="text-slate-300">Total Copies</Label>
                     <Input
                       id="totalCopies"
                       type="number"
@@ -457,16 +551,18 @@ export default function AdminDashboard() {
                       value={formData.totalCopies}
                       onChange={(e) => setFormData({...formData, totalCopies: parseInt(e.target.value)})}
                       required
+                      className="bg-white/5 border-white/10 text-white"
                     />
                   </div>
                 </div>
                 <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1">
+                  <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
                     {editingBook ? 'Update' : 'Create'}
                   </Button>
                   <Button 
                     type="button" 
                     variant="outline"
+                    className="border-white/20 text-white hover:bg-white/10 bg-white/10"
                     onClick={() => { setShowAddModal(false); setEditingBook(null); }}
                   >
                     Cancel

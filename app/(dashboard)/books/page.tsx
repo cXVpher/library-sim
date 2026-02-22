@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, Loader2, BookOpen, Users, Calendar, ArrowRight } from 'lucide-react';
+import { Search, Loader2, BookOpen, Users, Calendar, ArrowRight, Library } from 'lucide-react';
 
 export default function BooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -83,64 +83,70 @@ export default function BooksPage() {
   const availableCopies = books.reduce((acc, b) => acc + b.availableCopies, 0);
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Book Catalog</h1>
-          <p className="text-slate-500">Browse and borrow books from our library</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500/20 rounded-lg">
+            <Library className="w-6 h-6 text-blue-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white">Book Catalog</h1>
+            <p className="text-slate-400">Browse and borrow books from our library</p>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-100 rounded-lg">
-                <BookOpen className="w-5 h-5 text-slate-600" />
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <BookOpen className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{totalBooks}</p>
-                <p className="text-sm text-slate-500">Total Books</p>
+                <p className="text-2xl font-bold text-white">{totalBooks}</p>
+                <p className="text-sm text-slate-400">Total Books</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <BookOpen className="w-5 h-5 text-green-600" />
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <BookOpen className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{availableBooks}</p>
-                <p className="text-sm text-slate-500">Available</p>
+                <p className="text-2xl font-bold text-white">{availableBooks}</p>
+                <p className="text-sm text-slate-400">Available</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Users className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{totalCopies}</p>
-                <p className="text-sm text-slate-500">Total Copies</p>
+                <p className="text-2xl font-bold text-white">{totalCopies}</p>
+                <p className="text-sm text-slate-400">Total Copies</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Calendar className="w-5 h-5 text-yellow-600" />
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <Calendar className="w-5 h-5 text-yellow-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{availableCopies}</p>
-                <p className="text-sm text-slate-500">Available Copies</p>
+                <p className="text-2xl font-bold text-white">{availableCopies}</p>
+                <p className="text-sm text-slate-400">Available Copies</p>
               </div>
             </div>
           </CardContent>
@@ -153,9 +159,9 @@ export default function BooksPage() {
           placeholder="Search by title, author, or ISBN..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-10"
+          className="h-10 bg-white/5 border-white/10 text-white placeholder:text-slate-500"
         />
-        <Button type="submit" variant="secondary">
+        <Button type="submit" variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-white/10">
           <Search className="w-4 h-4 mr-2" />
           Search
         </Button>
@@ -163,6 +169,7 @@ export default function BooksPage() {
           <Button 
             type="button" 
             variant="ghost"
+            className="text-slate-400 hover:text-white hover:bg-white/10"
             onClick={() => { setSearchQuery(''); fetchBooks(); }}
           >
             Clear
@@ -171,25 +178,25 @@ export default function BooksPage() {
       </form>
 
       {/* Books Table */}
-      <Card>
-        <CardContent className="p-0">
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardContent className="p-0 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>ISBN</TableHead>
-                <TableHead>Publisher</TableHead>
-                <TableHead className="text-right">Year</TableHead>
-                <TableHead className="text-center">Availability</TableHead>
-                <TableHead className="text-center">Action</TableHead>
+              <TableRow className="border-white/10 hover:bg-transparent">
+                <TableHead className="text-slate-300">Title</TableHead>
+                <TableHead className="text-slate-300">Author</TableHead>
+                <TableHead className="text-slate-300">ISBN</TableHead>
+                <TableHead className="text-slate-300">Publisher</TableHead>
+                <TableHead className="text-right text-slate-300">Year</TableHead>
+                <TableHead className="text-center text-slate-300">Availability</TableHead>
+                <TableHead className="text-center text-slate-300">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center">
-                    <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-slate-400" />
                   </TableCell>
                 </TableRow>
               ) : books.length === 0 ? (
@@ -200,21 +207,21 @@ export default function BooksPage() {
                 </TableRow>
               ) : (
                 books.map((book) => (
-                  <TableRow key={book.id}>
-                    <TableCell className="font-medium">{book.title}</TableCell>
-                    <TableCell>{book.author}</TableCell>
-                    <TableCell className="font-mono text-sm">{book.isbn}</TableCell>
-                    <TableCell>{book.publisher}</TableCell>
-                    <TableCell className="text-right">{book.publicationYear}</TableCell>
+                  <TableRow key={book.id} className="border-white/5 hover:bg-white/5">
+                    <TableCell className="font-medium text-white">{book.title}</TableCell>
+                    <TableCell className="text-slate-300">{book.author}</TableCell>
+                    <TableCell className="font-mono text-sm text-slate-400">{book.isbn}</TableCell>
+                    <TableCell className="text-slate-300">{book.publisher}</TableCell>
+                    <TableCell className="text-right text-slate-300">{book.publicationYear}</TableCell>
                     <TableCell className="text-center">
                       {book.availableCopies > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-green-600">
-                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span className="inline-flex items-center gap-1 text-green-400">
+                          <span className="w-2 h-2 bg-green-400 rounded-full"></span>
                           {book.availableCopies} / {book.totalCopies}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-red-600">
-                          <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span className="inline-flex items-center gap-1 text-red-400">
+                          <span className="w-2 h-2 bg-red-400 rounded-full"></span>
                           All borrowed
                         </span>
                       )}
@@ -223,7 +230,7 @@ export default function BooksPage() {
                       {book.availableCopies > 0 ? (
                         <Button 
                           size="sm"
-                          className="bg-slate-800 hover:bg-slate-700"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
                           onClick={() => handleBorrow(book.id)}
                           disabled={borrowingId === book.id}
                         >
@@ -237,7 +244,7 @@ export default function BooksPage() {
                           )}
                         </Button>
                       ) : (
-                        <span className="text-sm text-slate-400">Unavailable</span>
+                        <span className="text-sm text-slate-500">Unavailable</span>
                       )}
                     </TableCell>
                   </TableRow>
