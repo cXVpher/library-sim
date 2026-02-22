@@ -70,7 +70,15 @@ export default function AdminDashboard() {
     try {
       const response = await LoanService.getAllLoansHistory();
       if (response.success) {
-        setLoans(response.data);
+        const loansWithBooks = response.data.map((loan: Loan) => {
+          const book = books.find(b => b.id === loan.bookId);
+          return {
+            ...loan,
+            bookTitle: book?.title || 'Unknown Book',
+            bookAuthor: book?.author || 'Unknown Author'
+          };
+        });
+        setLoans(loansWithBooks);
       }
     } catch (error) {
       toast.error('Failed to fetch loans');
@@ -167,8 +175,31 @@ export default function AdminDashboard() {
     const dueDateStr = dueDate.toISOString().split('T')[0];
 
     try {
+      const loanToApprove = loans.find(l => l.id === loanId);
+      if (!loanToApprove) {
+        toast.error('Loan not found');
+        return;
+      }
+
       await LoanService.approveLoan(loanId, dueDateStr);
-      toast.success('Loan approved');
+
+      const otherPendingLoans = loans.filter(
+        l => l.bookId === loanToApprove.bookId && l.status === 'PENDING' && l.id !== loanId
+      );
+
+      for (const otherLoan of otherPendingLoans) {
+        try {
+          await LoanService.rejectLoan(otherLoan.id);
+        } catch (error) {
+          console.error(`Failed to reject loan ${otherLoan.id}`, error);
+        }
+      }
+
+      if (otherPendingLoans.length > 0) {
+        toast.success(`Loan approved. ${otherPendingLoans.length} other request(s) automatically rejected.`);
+      } else {
+        toast.success('Loan approved');
+      }
       fetchLoans();
     } catch (error) {
       toast.error('Failed to approve loan');
@@ -410,7 +441,8 @@ export default function AdminDashboard() {
                 <TableRow className="border-white/10 hover:bg-transparent">
                   <TableHead className="text-slate-300">Loan ID</TableHead>
                   <TableHead className="text-slate-300">User ID</TableHead>
-                  <TableHead className="text-slate-300">Book ID</TableHead>
+                  <TableHead className="text-slate-300">Book</TableHead>
+                  <TableHead className="text-slate-300">Author</TableHead>
                   <TableHead className="text-slate-300">Status</TableHead>
                   <TableHead className="text-slate-300">Requested</TableHead>
                   <TableHead className="text-slate-300">Due Date</TableHead>
@@ -435,7 +467,8 @@ export default function AdminDashboard() {
                     <TableRow key={loan.id} className="border-white/5 hover:bg-white/5">
                       <TableCell className="font-mono text-xs text-slate-400">{loan.id.split('-')[0]}...</TableCell>
                       <TableCell className="font-mono text-xs text-slate-400">{loan.userId.split('-')[0]}...</TableCell>
-                      <TableCell className="font-mono text-xs text-slate-400">{loan.bookId.split('-')[0]}...</TableCell>
+                      <TableCell className="font-medium text-white">{'bookTitle' in loan ? (loan as Loan & { bookTitle?: string }).bookTitle : 'Unknown Book'}</TableCell>
+                      <TableCell className="text-slate-300">{'bookAuthor' in loan ? (loan as Loan & { bookAuthor?: string }).bookAuthor : 'Unknown Author'}</TableCell>
                       <TableCell>{getStatusBadge(loan.status)}</TableCell>
                       <TableCell className="text-slate-300">{new Date(loan.requestedAt).toLocaleDateString()}</TableCell>
                       <TableCell className="text-slate-300">{loan.dueDate ? new Date(loan.dueDate).toLocaleDateString() : '-'}</TableCell>

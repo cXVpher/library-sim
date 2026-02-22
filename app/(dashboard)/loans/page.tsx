@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { LoanService } from '@/services/loan.service';
+import { BookService } from '@/services/book.service';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Loan } from '@/types';
+import { Loan, Book } from '@/types';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,10 +22,22 @@ import { Loader2, Clock, CheckCircle, RotateCcw, Calendar, Library, ArrowRight }
 export default function LoansPage() {
   const { role } = useAuthStore();
   const [loans, setLoans] = useState<Loan[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'PENDING' | 'APPROVED' | 'RETURNED'>('all');
 
   const isAdmin = role === 'ROLE_ADMIN';
+
+  const fetchBooks = async () => {
+    try {
+      const booksResponse = await BookService.getAllBooks();
+      if (booksResponse.success) {
+        setBooks(booksResponse.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch books', error);
+    }
+  };
 
   const fetchLoans = async () => {
     setIsLoading(true);
@@ -36,7 +49,15 @@ export default function LoansPage() {
         response = await LoanService.getMyLoans();
       }
       if (response.success) {
-        setLoans(response.data);
+        const loansWithBooks = response.data.map((loan: Loan) => {
+          const book = books.find(b => b.id === loan.bookId);
+          return {
+            ...loan,
+            bookTitle: book?.title || 'Unknown Book',
+            bookAuthor: book?.author || 'Unknown Author'
+          };
+        });
+        setLoans(loansWithBooks);
       }
     } catch (error) {
       toast.error('Failed to fetch loans');
@@ -46,8 +67,14 @@ export default function LoansPage() {
   };
 
   useEffect(() => {
-    fetchLoans();
-  }, [isAdmin]);
+    fetchBooks();
+  }, []);
+
+  useEffect(() => {
+    if (books.length > 0) {
+      fetchLoans();
+    }
+  }, [isAdmin, books]);
 
   const handleApprove = async (loanId: string) => {
     const dueDate = new Date();
@@ -92,7 +119,6 @@ export default function LoansPage() {
     ? loans 
     : loans.filter(loan => loan.status === activeTab);
 
-  // Stats
   const stats = {
     total: loans.length,
     pending: loans.filter(l => l.status === 'PENDING').length,
@@ -195,7 +221,8 @@ export default function LoansPage() {
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">
                 {isAdmin && <TableHead className="text-slate-300">User ID</TableHead>}
-                <TableHead className="text-slate-300">Book ID</TableHead>
+                <TableHead className="text-slate-300">Book</TableHead>
+                <TableHead className="text-slate-300">Author</TableHead>
                 <TableHead className="text-slate-300">Status</TableHead>
                 <TableHead className="text-slate-300">Requested</TableHead>
                 <TableHead className="text-slate-300">Due Date</TableHead>
@@ -224,8 +251,11 @@ export default function LoansPage() {
                         {loan.userId.split('-')[0]}...
                       </TableCell>
                     )}
-                    <TableCell className="font-mono text-xs text-slate-400">
-                      {loan.bookId.split('-')[0]}...
+                    <TableCell className="font-medium text-white">
+                      {loan.bookTitle || 'Unknown Book'}
+                    </TableCell>
+                    <TableCell className="text-slate-300">
+                      {loan.bookAuthor || 'Unknown Author'}
                     </TableCell>
                     <TableCell>{getStatusBadge(loan.status)}</TableCell>
                     <TableCell className="text-slate-300">{new Date(loan.requestedAt).toLocaleDateString()}</TableCell>
