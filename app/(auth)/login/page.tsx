@@ -32,7 +32,6 @@ export default function LoginPage() {
         login(response.data.token);
         
         const role = response.data.role || '';
-        // Check for admin role - could be ROLE_ADMIN, ADMIN, or role containing 'ADMIN'
         const isAdmin = role === 'ROLE_ADMIN' || role === 'ADMIN' || role.toUpperCase().includes('ADMIN');
         
         if (isAdmin) {
