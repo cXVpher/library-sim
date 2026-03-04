@@ -18,6 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { DeleteConfirmModal } from '@/components/modals/delete-confirm-modal';
+import { AddEditBookModal } from '@/components/modals/add-edit-book-modal';
 import { 
   Search, 
   Loader2, 
@@ -41,6 +43,9 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -131,15 +136,20 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteBook = async (bookId: string) => {
-    if (!confirm('Are you sure you want to delete this book?')) return;
+  const handleDeleteBook = async () => {
+    if (!bookToDelete) return;
     
+    setIsDeleting(true);
     try {
-      await BookService.deleteBook(bookId);
+      await BookService.deleteBook(bookToDelete.id);
       toast.success('Book deleted successfully');
       fetchBooks();
+      setDeleteModalOpen(false);
+      setBookToDelete(null);
     } catch (error) {
       toast.error('Failed to delete book');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -416,7 +426,7 @@ export default function AdminDashboard() {
                               variant="ghost" 
                               size="sm"
                               className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                              onClick={() => handleDeleteBook(book.id)}
+                              onClick={() => { setBookToDelete(book); setDeleteModalOpen(true); }}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -507,105 +517,25 @@ export default function AdminDashboard() {
       )}
 
       {/* Add/Edit Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <Card className="w-[500px] max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-white">{editingBook ? 'Edit Book' : 'Add New Book'}</CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-slate-400 hover:text-white"
-                onClick={() => { setShowAddModal(false); setEditingBook(null); }}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmitBook} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-slate-300">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    required
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="author" className="text-slate-300">Author</Label>
-                  <Input
-                    id="author"
-                    value={formData.author}
-                    onChange={(e) => setFormData({...formData, author: e.target.value})}
-                    required
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="isbn" className="text-slate-300">ISBN</Label>
-                  <Input
-                    id="isbn"
-                    value={formData.isbn}
-                    onChange={(e) => setFormData({...formData, isbn: e.target.value})}
-                    required
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="publisher" className="text-slate-300">Publisher</Label>
-                  <Input
-                    id="publisher"
-                    value={formData.publisher}
-                    onChange={(e) => setFormData({...formData, publisher: e.target.value})}
-                    required
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="publicationYear" className="text-slate-300">Year</Label>
-                    <Input
-                      id="publicationYear"
-                      type="number"
-                      value={formData.publicationYear}
-                      onChange={(e) => setFormData({...formData, publicationYear: parseInt(e.target.value)})}
-                      required
-                      className="bg-white/5 border-white/10 text-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="totalCopies" className="text-slate-300">Total Copies</Label>
-                    <Input
-                      id="totalCopies"
-                      type="number"
-                      min="1"
-                      value={formData.totalCopies}
-                      onChange={(e) => setFormData({...formData, totalCopies: parseInt(e.target.value)})}
-                      required
-                      className="bg-white/5 border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                    {editingBook ? 'Update' : 'Create'}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10 bg-white/10"
-                    onClick={() => { setShowAddModal(false); setEditingBook(null); }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <AddEditBookModal
+        isOpen={showAddModal}
+        onClose={() => { setShowAddModal(false); setEditingBook(null); }}
+        onSubmit={handleSubmitBook}
+        editingBook={editingBook}
+        formData={formData}
+        setFormData={setFormData}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setBookToDelete(null); }}
+        onConfirm={handleDeleteBook}
+        title="Delete Book"
+        description="Are you sure you want to delete this book? This action cannot be undone."
+        itemName={bookToDelete?.title}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

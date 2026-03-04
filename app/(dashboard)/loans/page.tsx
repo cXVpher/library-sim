@@ -17,14 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Loader2, Clock, CheckCircle, RotateCcw, Calendar, Library, ArrowRight } from 'lucide-react';
+import { Loader2, Clock, CheckCircle, RotateCcw, Calendar, Library, ArrowRight, X } from 'lucide-react';
 
 export default function LoansPage() {
   const { role } = useAuthStore();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'PENDING' | 'APPROVED' | 'RETURNED'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'PENDING' | 'APPROVED' | 'RETURNED' | 'REJECTED'>('all');
 
   const isAdmin = role === 'ROLE_ADMIN';
 
@@ -100,6 +100,16 @@ export default function LoansPage() {
     }
   };
 
+  const handleReject = async (loanId: string) => {
+    try {
+      await LoanService.rejectLoan(loanId);
+      toast.success('Loan rejected');
+      fetchLoans();
+    } catch (error) {
+      toast.error('Failed to reject loan');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PENDING': 
@@ -124,6 +134,7 @@ export default function LoansPage() {
     pending: loans.filter(l => l.status === 'PENDING').length,
     borrowed: loans.filter(l => l.status === 'APPROVED').length,
     returned: loans.filter(l => l.status === 'RETURNED').length,
+    rejected: loans.filter(l => l.status === 'REJECTED').length,
   };
 
   return (
@@ -135,14 +146,14 @@ export default function LoansPage() {
             <Library className="w-6 h-6 text-green-400" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white">My Loans</h1>
-            <p className="text-slate-400">View and manage your book loans</p>
+            <h1 className="text-3xl font-bold text-white">{isAdmin ? 'Loan Management' : 'My Loans'}</h1>
+            <p className="text-slate-400">{isAdmin ? 'Manage book loan requests from users' : 'View and manage your book loans'}</p>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={`grid ${isAdmin ? 'grid-cols-2 md:grid-cols-5' : 'grid-cols-2 md:grid-cols-4'} gap-4`}>
         <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -195,11 +206,30 @@ export default function LoansPage() {
             </div>
           </CardContent>
         </Card>
+        {isAdmin && (
+          <Card className="bg-white/5 border-white/10 backdrop-blur">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-500/20 rounded-lg">
+                  <X className="w-5 h-5 text-red-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{stats.rejected}</p>
+                  <p className="text-sm text-slate-400">Rejected</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 border-b border-white/10 pb-2">
-        {(['all', 'PENDING', 'APPROVED', 'RETURNED'] as const).map((tab) => (
+        {(
+          isAdmin 
+            ? (['all', 'PENDING', 'APPROVED', 'RETURNED', 'REJECTED'] as const)
+            : (['all', 'PENDING', 'APPROVED', 'RETURNED'] as const)
+        ).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -275,13 +305,24 @@ export default function LoansPage() {
                     {isAdmin && (
                       <TableCell className="text-center">
                         {loan.status === 'PENDING' && (
-                          <Button 
-                            size="sm" 
-                            className="bg-blue-600 hover:bg-blue-700"
-                            onClick={() => handleApprove(loan.id)}
-                          >
-                            Approve
-                          </Button>
+                          <div className="flex gap-2 justify-center">
+                            <Button 
+                              size="sm" 
+                              className="bg-blue-600 hover:bg-blue-700"
+                              onClick={() => handleApprove(loan.id)}
+                            >
+                              Approve
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                              onClick={() => handleReject(loan.id)}
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
                         )}
                         {loan.status === 'APPROVED' && (
                           <Button 
@@ -295,6 +336,9 @@ export default function LoansPage() {
                         )}
                         {loan.status === 'RETURNED' && (
                           <span className="text-sm text-slate-500 italic">Completed</span>
+                        )}
+                        {loan.status === 'REJECTED' && (
+                          <span className="text-sm text-slate-500 italic">Rejected</span>
                         )}
                       </TableCell>
                     )}

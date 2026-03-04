@@ -34,7 +34,8 @@ export default function BooksPage() {
   const [borrowingId, setBorrowingId] = useState<string | null>(null);
   const [userLoans, setUserLoans] = useState<Loan[]>([]);
   
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, role } = useAuthStore();
+  const isAdmin = role === 'ROLE_ADMIN';
   
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -118,7 +119,7 @@ export default function BooksPage() {
   };
 
   const fetchUserLoans = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isAdmin) return;
     try {
       const loansResponse = await LoanService.getMyLoans();
       if (loansResponse.success) {
@@ -370,7 +371,9 @@ export default function BooksPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-center">
-                      {(() => {
+                      {isAdmin ? (
+                        <span className="text-sm text-slate-500">Admin Access</span>
+                      ) : (() => {
                         const loanStatus = getLoanStatusForBook(book.id);
                         
                         if (loanStatus?.status === 'PENDING') {

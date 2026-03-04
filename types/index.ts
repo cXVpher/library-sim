@@ -35,7 +35,7 @@ export interface Loan {
   id: string;
   userId: string;
   bookId: string;
-  status: 'PENDING' | 'APPROVED' | 'RETURNED';
+  status: 'PENDING' | 'APPROVED' | 'RETURNED' | 'REJECTED';
   requestedAt: string;
   loanDate?: string;
   dueDate?: string;

@@ -24,5 +24,9 @@ export const LoanService = {
 
   returnLoan: async (loanId: string) => {
     return api.put<ApiResponse<null>>(`/loans/${loanId}/return`, {});
+  },
+
+  rejectLoan: async (loanId: string) => {
+    return api.put<ApiResponse<null>>(`/loans/${loanId}/reject`, {});
   }
 };

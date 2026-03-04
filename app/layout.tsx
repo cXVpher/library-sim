@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Spring Library - Online Book Management System",
+  title: "LibrarySim - Online Book Management System",
   description: "Borrow books, manage loans, and explore our collection",
 };
 

@@ -67,7 +67,7 @@ export default function LoginPage() {
               <Library className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-800">Spring Library</CardTitle>
+          <CardTitle className="text-2xl font-bold text-slate-800">Library Sim</CardTitle>
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
