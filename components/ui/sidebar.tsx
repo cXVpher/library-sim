@@ -163,7 +163,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const { isMobile, state, setOpen, openMobile, setOpenMobile } = useSidebar()
 
   if (collapsible === "none") {
     return (
@@ -217,14 +217,15 @@ function Sidebar({
       {/* This is what handles the sidebar gap on desktop */}
       <div
         data-slot="sidebar-gap"
+        className="hidden" // Hiding the gap makes the sidebar overlay the content instead of pushing it
+      />
+      {/* Backdrop to dismiss when clicked outside on desktop */}
+      <div
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
-          "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+          "fixed inset-0 z-[9] bg-black/40 backdrop-blur-sm transition-opacity duration-200 ease-linear",
+          state === "expanded" ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
+        onClick={() => setOpen(false)}
       />
       <div
         data-slot="sidebar-container"
