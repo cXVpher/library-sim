@@ -54,7 +54,7 @@ export default function AdminDashboard() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-10 bg-white/5 border-white/10 text-white placeholder:text-slate-500"
             />
-            <Button type="submit" variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-white/10">
+            <Button type="submit" variant="outline" className="border-white/20 text-white transition-colors hover:bg-white/90 hover:text-black bg-white/10">
               <Search className="w-4 h-4" />
             </Button>
           </form>

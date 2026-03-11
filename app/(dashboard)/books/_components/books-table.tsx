@@ -23,7 +23,7 @@ function SortButton({ field, label, sortConfig, onSort }: { field: SortField; la
   const isActive = sortConfig.field === field;
   return (
     <Button variant="ghost" size="sm" onClick={() => onSort(field)}
-      className={`h-8 px-2 flex items-center gap-1 ${isActive ? 'text-blue-400 hover:text-blue-300' : 'text-slate-300 hover:text-white'}`}>
+      className={`h-8 px-2 flex items-center gap-1 transition-colors ${isActive ? 'text-blue-400 hover:text-black hover:bg-white/90' : 'text-slate-300 hover:text-black hover:bg-white/90'}`}>
       {label}
       <div className="flex flex-col ml-1">
         {isActive && sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3" />
