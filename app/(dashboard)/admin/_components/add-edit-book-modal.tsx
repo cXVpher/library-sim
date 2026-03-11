@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Book } from '@/types';
-import { X } from 'lucide-react';
 
 interface AddEditBookModalProps {
   isOpen: boolean;
